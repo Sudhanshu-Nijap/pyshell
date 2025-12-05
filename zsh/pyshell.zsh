@@ -1,5 +1,5 @@
 py() {
-    # capture piped data if present
+    # Capture piped input safely
     if [ ! -t 0 ]; then
         STDIN_DATA="$(cat)"
     else
@@ -7,11 +7,15 @@ py() {
     fi
 
     python3 - "$@" <<EOF
-import sys, subprocess, re, traceback, builtins
+import sys, subprocess, re, traceback, builtins, io
 
+# Full code passed in arguments
 code = " ".join(sys.argv[1:]).strip()
 
+# Prepare stdin
 stdin_data = """$STDIN_DATA"""
+if stdin_data:
+    sys.stdin = io.StringIO(stdin_data)
 
 # ---------------------------------------------
 # SAFE SHELL EXECUTION FOR !commands
@@ -24,36 +28,22 @@ def shell_sub(match):
     except subprocess.CalledProcessError as e:
         return repr(e.output)
 
-# Replace !command inside Python
-code = re.sub(r"!(.+)", shell_sub, code)
+# Shell substitution like !ls
+code = re.sub(r"!([^!]+)", shell_sub, code)
 
 # ---------------------------------------------
-# PIPE INPUT → sys.stdin
-# ---------------------------------------------
-if stdin_data:
-    sys.stdin = iter(stdin_data.splitlines(keepends=True))
-
-# ---------------------------------------------
-# TRY eval() FIRST (expressions)
+# Run Python code safely
 # ---------------------------------------------
 try:
-    result = eval(code)
+    result = eval(code, globals(), globals())
     if result is not None:
         print(result)
-    sys.exit(0)
 except SyntaxError:
-    pass
-except Exception as e:
-    print("Error in expression:", e)
-    sys.exit(1)
-
-# ---------------------------------------------
-# THEN TRY exec() FOR FULL PROGRAMS
-# ---------------------------------------------
-try:
-    exec(code, globals(), locals())
+    try:
+        exec(code, globals(), globals())
+    except Exception:
+        traceback.print_exc()
 except Exception:
-    print("Error in script:")
     traceback.print_exc()
 EOF
 }
