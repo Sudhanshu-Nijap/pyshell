@@ -78,6 +78,8 @@ b = 20
 print(a + b)
 '
 ```
+---
+
 ## Uninstallation
 ```
 chmod +x uninstall.sh
