@@ -1,45 +1,37 @@
 #!/usr/bin/env bash
 
-# Working
+# Fix Windows CRLF line endings
+sed -i 's/\r$//' "$0" 2>/dev/null || true
 
-# 1. Prints: Installing PyShell (no-error mode)
-# 2. Sets where PyShell will be installed (/usr/local/bin/pyshell)
-# 3. Checks if the source file pyshell.py exists.
-#    If not, it prints a warning and stops.
-# 4. Copies pyshell.py to /usr/local/bin/pyshell
-#    Ignores any errors (so it never fails).
-# 5. Fixes CRLF line endings (Windows → Linux) using sed.
-# 6. Makes the file executable (chmod +x)
-# 7. Checks if the file exists in /usr/local/bin → prints success or failure.
-# 8. Exits safely.
+echo "[+] Installing PyShell (no-error mode)..."
 
-echo "[+] Installing PyShell (no-error mode)..."  # Inform user
+INSTALL_PATH="/usr/local/bin/pyshell"
+SOURCE_FILE="pyshell.py"
 
-INSTALL_PATH="/usr/local/bin/pyshell"  # Where PyShell will be installed
-SOURCE_FILE="pyshell.py"               # Source Python file
+# Ensure script runs from project root
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$SCRIPT_DIR" || exit 0
 
-# Check if the source file exists
+# Check source file
 if [ ! -f "$SOURCE_FILE" ]; then
-    echo "[!] pyshell.py not found (skipping install)"
-    exit 0  # Stop if file not found
+    echo "[!] pyshell.py not found (run install.sh from project folder)"
+    exit 0
 fi
 
-# Copy file to /usr/local/bin
+# Copy file
 sudo cp "$SOURCE_FILE" "$INSTALL_PATH" 2>/dev/null || true
-# 2>/dev/null -> ignore errors
-# || true -> never fail
 
-# Fix Windows line endings (CRLF -> LF)
+# Fix CRLF
 sudo sed -i 's/\r$//' "$INSTALL_PATH" 2>/dev/null || true
 
-# Make file executable
+# Make executable
 sudo chmod +x "$INSTALL_PATH" 2>/dev/null || true
 
-# Verify installation
-if [ -f "$INSTALL_PATH" ]; then
+# Verify
+if command -v pyshell >/dev/null 2>&1; then
     echo "[✓] PyShell installed"
 else
-    echo "[i] PyShell not installed (permission or sudo issue)"
+    echo "[i] Installation incomplete (sudo or PATH issue)"
 fi
 
-exit 0  # End script
+exit 0
