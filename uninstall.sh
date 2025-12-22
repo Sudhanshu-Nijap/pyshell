@@ -1,20 +1,28 @@
 #!/usr/bin/env bash
 
-# Auto-fix Windows line endings
+# Fix Windows CRLF line endings
 sed -i 's/\r$//' "$0" 2>/dev/null || true
 
-echo "[+] Uninstalling PyShell (no-error mode)..."
+echo "[+] Uninstalling PyShell..."
 
-INSTALL_PATH="/usr/local/bin/pyshell"
+BIN_PATH="/usr/local/bin/pyshell"
+SHARE_DIR="/usr/local/share/pyshell"
+CONFIG_DIR="$HOME/.config/pyshell"
 
-# Try to remove PyShell executable
-sudo rm -f "$INSTALL_PATH" 2>/dev/null || true
+# Remove binary
+sudo rm -f "$BIN_PATH" 2>/dev/null || true
 
-# Verify removal
-if [ -f "$INSTALL_PATH" ]; then
-    echo "[i] PyShell still exists (permission issue)"
+# Remove system folder (if exists)
+sudo rm -rf "$SHARE_DIR" 2>/dev/null || true
+
+# Remove user config
+rm -rf "$CONFIG_DIR" 2>/dev/null || true
+
+# Verify
+if [ -f "$BIN_PATH" ] || [ -d "$SHARE_DIR" ] || [ -d "$CONFIG_DIR" ]; then
+    echo "[i] Some PyShell files still exist (permission issue)"
 else
-    echo "[✓] PyShell removed or not present"
+    echo "[✓] PyShell completely removed"
 fi
 
 exit 0
