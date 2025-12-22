@@ -1,29 +1,20 @@
 #!/usr/bin/env bash
 
-# Working
+# Auto-fix Windows line endings
+sed -i 's/\r$//' "$0" 2>/dev/null || true
 
-# 1. Prints: [+] Uninstalling PyShell (no-error mode)...
-# 2. Sets the path where PyShell is installed: /usr/local/bin/pyshell
-# 3. Tries to remove the file safely using sudo rm -f
-#    Ignores errors (never fails)
-# 4. Checks if the file still exists → prints success or warning
-# 5. Exits safely
+echo "[+] Uninstalling PyShell (no-error mode)..."
 
-echo "[+] Uninstalling PyShell (no-error mode)..."  # Inform user
+INSTALL_PATH="/usr/local/bin/pyshell"
 
-INSTALL_PATH="/usr/local/bin/pyshell"  # Path of installed PyShell
-
-# Try to remove the PyShell executable
+# Try to remove PyShell executable
 sudo rm -f "$INSTALL_PATH" 2>/dev/null || true
-# - -f → force removal
-# - 2>/dev/null → ignore errors
-# - || true → never fail
 
 # Verify removal
 if [ -f "$INSTALL_PATH" ]; then
-    echo "[i] PyShell still exists (permission issue)"  # Could not remove
+    echo "[i] PyShell still exists (permission issue)"
 else
-    echo "[✓] PyShell removed or not present"  # Success
+    echo "[✓] PyShell removed or not present"
 fi
 
-exit 0  # End script
+exit 0
