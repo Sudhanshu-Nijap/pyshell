@@ -3,7 +3,7 @@
 # Fix Windows CRLF line endings
 sed -i 's/\r$//' "$0" 2>/dev/null || true
 
-echo "[+] Installing PyShell (no-error mode)..."
+echo "[+] Installing PyShell..."
 
 INSTALL_PATH="/usr/local/bin/pyshell"
 SOURCE_FILE="pyshell.py"
@@ -31,7 +31,7 @@ sudo chmod +x "$INSTALL_PATH" 2>/dev/null || true
 if command -v pyshell >/dev/null 2>&1; then
     echo "[✓] PyShell installed"
 else
-    echo "[i] Installation incomplete (sudo or PATH issue)"
+    echo "[i] Installation incomplete"
 fi
 
 exit 0
